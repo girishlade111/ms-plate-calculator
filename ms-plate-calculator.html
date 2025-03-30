@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MS Plate Weight Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .calculator-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+        }
+        
+        .calculator-header {
+            background-color: #2563eb;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .calculator-header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .calculator-body {
+            padding: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #4b5563;
+            font-weight: 500;
+        }
+        
+        .input-field {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .input-field input {
+            flex: 1;
+            height: 45px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 0 15px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
+        }
+        
+        .input-field input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+        
+        .input-field select {
+            width: 80px;
+            height: 45px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 0 10px;
+            font-size: 0.9rem;
+            background-color: white;
+        }
+        
+        .unit {
+            width: 60px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+            margin-bottom: 25px;
+        }
+        
+        button {
+            height: 50px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .calculate-btn {
+            background-color: #2563eb;
+            color: white;
+        }
+        
+        .calculate-btn:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .clear-btn {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+        
+        .clear-btn:hover {
+            background-color: #e5e7eb;
+        }
+        
+        .result-section {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 20px;
+        }
+        
+        .result-section h2 {
+            font-size: 1.1rem;
+            color: #374151;
+            margin-bottom: 15px;
+        }
+        
+        .result-group {
+            margin-bottom: 15px;
+        }
+        
+        .result-field {
+            display: flex;
+            align-items: center;
+        }
+        
+        .result-field label {
+            width: 50%;
+            font-size: 0.9rem;
+            color: #4b5563;
+        }
+        
+        .result-field input {
+            flex: 1;
+            height: 45px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 0 15px;
+            font-size: 0.95rem;
+            background-color: #f9fafb;
+            font-weight: 500;
+            color: #2563eb;
+            cursor: default;
+        }
+        
+        .error {
+            color: #ef4444;
+            font-size: 0.8rem;
+            margin-top: 6px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-card">
+        <div class="calculator-header">
+            <h1>MS Plate Weight Calculator</h1>
+        </div>
+        <div class="calculator-body">
+            <div class="input-group">
+                <label for="material">Material</label>
+                <div class="input-field">
+                    <select id="material">
+                        <option value="7850">Mild Steel</option>
+                        <option value="7750">Stainless Steel 304</option>
+                        <option value="7900">Stainless Steel 316</option>
+                        <option value="2700">Aluminum</option>
+                        <option value="8940">Copper</option>
+                        <option value="8500">Brass</option>
+                        <option value="custom">Custom Density</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="custom-density" class="input-group" style="display: none;">
+                <label for="density">Custom Density</label>
+                <div class="input-field">
+                    <input type="number" id="density" placeholder="Enter density">
+                    <div class="unit">kg/m³</div>
+                </div>
+                <div id="density-error" class="error">Please enter a valid density</div>
+            </div>
+            
+            <div class="input-group">
+                <label for="shape">Shape</label>
+                <div class="input-field">
+                    <select id="shape">
+                        <option value="plate">Plate</option>
+                        <option value="rod-round">Round Rod</option>
+                        <option value="rod-square">Square Rod</option>
+                        <option value="pipe">Pipe</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Plate/Square Rod dimensions -->
+            <div id="plate-dimensions">
+                <div class="input-group">
+                    <label for="width">Width</label>
+                    <div class="input-field">
+                        <input type="number" id="width" placeholder="Enter width">
+                        <div class="unit">mm</div>
+                    </div>
+                    <div id="width-error" class="error">Please enter a valid width</div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="thickness">Thickness</label>
+                    <div class="input-field">
+                        <input type="number" id="thickness" placeholder="Enter thickness">
+                        <div class="unit">mm</div>
+                    </div>
+                    <div id="thickness-error" class="error">Please enter a valid thickness</div>
+                </div>
+            </div>
+            
+            <!-- Round Rod dimensions -->
+            <div id="round-rod-dimensions" style="display: none;">
+                <div class="input-group">
+                    <label for="diameter">Diameter</label>
+                    <div class="input-field">
+                        <input type="number" id="diameter" placeholder="Enter diameter">
+                        <div class="unit">mm</div>
+                    </div>
+                    <div id="diameter-error" class="error">Please enter a valid diameter</div>
+                </div>
+            </div>
+            
+            <!-- Pipe dimensions -->
+            <div id="pipe-dimensions" style="display: none;">
+                <div class="input-group">
+                    <label for="outer-diameter">Outer Diameter</label>
+                    <div class="input-field">
+                        <input type="number" id="outer-diameter" placeholder="Enter outer diameter">
+                        <div class="unit">mm</div>
+                    </div>
+                    <div id="outer-diameter-error" class="error">Please enter a valid outer diameter</div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="inner-diameter">Inner Diameter</label>
+                    <div class="input-field">
+                        <input type="number" id="inner-diameter" placeholder="Enter inner diameter">
+                        <div class="unit">mm</div>
+                    </div>
+                    <div id="inner-diameter-error" class="error">Please enter a valid inner diameter</div>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label for="length">Length</label>
+                <div class="input-field">
+                    <input type="number" id="length" placeholder="Enter length">
+                    <div class="unit">mm</div>
+                </div>
+                <div id="length-error" class="error">Please enter a valid length</div>
+            </div>
+            
+            <div class="buttons">
+                <button id="calculate-btn" class="calculate-btn">Calculate</button>
+                <button id="clear-btn" class="clear-btn">Clear</button>
+            </div>
+            
+            <div class="result-section">
+                <h2>Results</h2>
+                <div class="result-group">
+                    <div class="result-field">
+                        <label for="weight-kg">Calculated Weight (Kgs):</label>
+                        <input type="text" id="weight-kg" readonly>
+                    </div>
+                </div>
+                <div class="result-group">
+                    <div class="result-field">
+                        <label for="weight-lbs">Calculated Weight (Lbs):</label>
+                        <input type="text" id="weight-lbs" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get DOM elements
+            const materialSelect = document.getElementById('material');
+            const customDensityDiv = document.getElementById('custom-density');
+            const densityInput = document.getElementById('density');
+            const shapeSelect = document.getElementById('shape');
+            const plateDimensions = document.getElementById('plate-dimensions');
+            const roundRodDimensions = document.getElementById('round-rod-dimensions');
+            const pipeDimensions = document.getElementById('pipe-dimensions');
+            const widthInput = document.getElementById('width');
+            const thicknessInput = document.getElementById('thickness');
+            const diameterInput = document.getElementById('diameter');
+            const outerDiameterInput = document.getElementById('outer-diameter');
+            const innerDiameterInput = document.getElementById('inner-diameter');
+            const lengthInput = document.getElementById('length');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const weightKgInput = document.getElementById('weight-kg');
+            const weightLbsInput = document.getElementById('weight-lbs');
+            
+            // Error elements
+            const densityError = document.getElementById('density-error');
+            const widthError = document.getElementById('width-error');
+            const thicknessError = document.getElementById('thickness-error');
+            const diameterError = document.getElementById('diameter-error');
+            const outerDiameterError = document.getElementById('outer-diameter-error');
+            const innerDiameterError = document.getElementById('inner-diameter-error');
+            const lengthError = document.getElementById('length-error');
+            
+            // Handle material change
+            materialSelect.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customDensityDiv.style.display = 'block';
+                } else {
+                    customDensityDiv.style.display = 'none';
+                }
+            });
+            
+            // Handle shape change
+            shapeSelect.addEventListener('change', function() {
+                // Hide all dimensions first
+                plateDimensions.style.display = 'none';
+                roundRodDimensions.style.display = 'none';
+                pipeDimensions.style.display = 'none';
+                
+                // Show appropriate dimensions based on selected shape
+                switch(this.value) {
+                    case 'plate':
+                    case 'rod-square':
+                        plateDimensions.style.display = 'block';
+                        break;
+                    case 'rod-round':
+                        roundRodDimensions.style.display = 'block';
+                        break;
+                    case 'pipe':
+                        pipeDimensions.style.display = 'block';
+                        break;
+                }
+            });
+            
+            // Real-time validation and calculation
+            const inputs = [densityInput, widthInput, thicknessInput, diameterInput, outerDiameterInput, innerDiameterInput, lengthInput];
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    validateInput(input);
+                });
+            });
+            
+            // Calculate button click handler
+            calculateBtn.addEventListener('click', calculateWeight);
+            
+            // Clear button click handler
+            clearBtn.addEventListener('click', function() {
+                // Clear all inputs
+                inputs.forEach(input => input.value = '');
+                
+                // Clear results
+                weightKgInput.value = '';
+                weightLbsInput.value = '';
+                
+                // Hide all error messages
+                const errors = document.querySelectorAll('.error');
+                errors.forEach(error => error.style.display = 'none');
+                
+                // Reset to default material
+                materialSelect.value = '7850';
+                customDensityDiv.style.display = 'none';
+                
+                // Reset to default shape
+                shapeSelect.value = 'plate';
+                plateDimensions.style.display = 'block';
+                roundRodDimensions.style.display = 'none';
+                pipeDimensions.style.display = 'none';
+            });
+            
+            // Validation function
+            function validateInput(input) {
+                const value = parseFloat(input.value);
+                const errorElement = document.getElementById(`${input.id}-error`);
+                
+                if (isNaN(value) || value <= 0) {
+                    if (errorElement) {
+                        errorElement.style.display = 'block';
+                    }
+                    return false;
+                } else {
+                    if (errorElement) {
+                        errorElement.style.display = 'none';
+                    }
+                    return true;
+                }
+            }
+            
+            // Calculate the weight
+            function calculateWeight() {
+                // Get material density
+                let density;
+                if (materialSelect.value === 'custom') {
+                    if (!validateInput(densityInput)) {
+                        return;
+                    }
+                    density = parseFloat(densityInput.value);
+                } else {
+                    density = parseFloat(materialSelect.value);
+                }
+                
+                // Get length
+                if (!validateInput(lengthInput)) {
+                    return;
+                }
+                const length = parseFloat(lengthInput.value);
+                
+                // Calculate volume and weight based on shape
+                let volumeMm3 = 0;
+                const shape = shapeSelect.value;
+                
+                switch(shape) {
+                    case 'plate':
+                        if (!validateInput(widthInput) || !validateInput(thicknessInput)) {
+                            return;
+                        }
+                        const width = parseFloat(widthInput.value);
+                        const thickness = parseFloat(thicknessInput.value);
+                        volumeMm3 = length * width * thickness;
+                        break;
+                        
+                    case 'rod-square':
+                        if (!validateInput(widthInput) || !validateInput(thicknessInput)) {
+                            return;
+                        }
+                        const squareWidth = parseFloat(widthInput.value);
+                        const squareThickness = parseFloat(thicknessInput.value);
+                        volumeMm3 = length * squareWidth * squareThickness;
+                        break;
+                        
+                    case 'rod-round':
+                        if (!validateInput(diameterInput)) {
+                            return;
+                        }
+                        const diameter = parseFloat(diameterInput.value);
+                        const radius = diameter / 2;
+                        volumeMm3 = Math.PI * radius * radius * length;
+                        break;
+                        
+                    case 'pipe':
+                        if (!validateInput(outerDiameterInput) || !validateInput(innerDiameterInput)) {
+                            return;
+                        }
+                        const outerDiameter = parseFloat(outerDiameterInput.value);
+                        const innerDiameter = parseFloat(innerDiameterInput.value);
+                        
+                        if (innerDiameter >= outerDiameter) {
+                            innerDiameterError.textContent = "Inner diameter must be less than outer diameter";
+                            innerDiameterError.style.display = 'block';
+                            return;
+                        } else {
+                            innerDiameterError.style.display = 'none';
+                        }
+                        
+                        const outerRadius = outerDiameter / 2;
+                        const innerRadius = innerDiameter / 2;
+                        volumeMm3 = Math.PI * (outerRadius * outerRadius - innerRadius * innerRadius) * length;
+                        break;
+                }
+                
+                // Calculate weight (density is in kg/m³, volume in mm³)
+                const volumeM3 = volumeMm3 / 1000000000; // Convert mm³ to m³
+                const weightKg = volumeM3 * density;
+                const weightLbs = weightKg * 2.20462;
+                
+                // Display results with 2 decimal places
+                weightKgInput.value = weightKg.toFixed(2) + ' kg';
+                weightLbsInput.value = weightLbs.toFixed(2) + ' lb';
+            }
+        });
+    </script>
+</body>
+</html>
